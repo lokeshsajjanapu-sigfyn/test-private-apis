@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  test-sam-app
+
+  Sample SAM Template for test-sam-app
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: Test Api Gateway
+
+  
+  # ApiDeployment:
+  #   Type: AWS::ApiGateway::Deployment
+  #   DependsOn:
+  #   - ApiGateway
+  #   Properties: 
+  #     Description: test
+  #     RestApiId: !Ref ApiGateway
+  #     StageName: develop
+  
+  # MyStage:
+  #   Type: AWS::ApiGateway::Stage
+  #   Properties: 
+  #     DeploymentId: !Ref ApiDeployment
+  #     Description: stage name
+  #     RestApiId: !Ref ApiGateway
+  #     StageName: develop
+
+
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Role: arn:aws:iam::444821522739:role/SigfynLambdaBasicRole
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          ENDPOINT: !Ref ApiGateway
+      Role: "arn:aws:iam::444821522739:role/SigfynLambdaBasicRole"
+      VpcConfig:
+        SecurityGroupIds: [sg-0edfde8a54d976e8e,sg-00e8f087ddf0d5451,sg-09011725627751be9]
+        SubnetIds: [subnet-0c627f486d6bc7b7d]
+
+  # MyIntegration:
+  #   Type: AWS::ApiGatewayV2::Integration
+  #   DependsOn:
+  #     - ApiGateway
+  #   Properties:
+  #     ApiId: !Ref 
+  #     IntegrationType: AWS_PROXY
+  #     IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}/invocations
+  #     IntegrationMethod: POST
+  #     PayloadFormatVersion: "2.0"
+
+  # MyRoute:
+  #   Type: AWS::ApiGatewayV2::Route
+  #   Properties:
+  #     ApiId: !Ref ApiGateway
+  #     RouteKey: GET /hello
+  #     # Target: !Sub integrations/${MyIntegration}
+
+  MyConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source: # Use 'Id' when resource is in the same template
+        Id: ApiGateway
+      Destination: # Use 'Id' when resource is in the same template
+        Id: HelloWorldFunction
+      Permissions:
+        - Write
+

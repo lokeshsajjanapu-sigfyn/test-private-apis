@@ -1,0 +1,12 @@
+version = 0.1
+
+[dev]
+[dev.deploy]
+[dev.deploy.parameters]
+stack_name = "test"
+s3_bucket = "dev-sigfyn-api-deployment-jisdf"
+s3_prefix = "test"
+region = "ap-south-1"
+capabilities = "CAPABILITY_NAMED_IAM"
+confirm_changeset = true
+disable_rollback = false
